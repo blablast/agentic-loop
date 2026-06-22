@@ -1,0 +1,24 @@
+# Secrets
+.env
+CLAUDE.md
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+
+# Tooling / IDE
+.idea/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# macOS
+.DS_Store
+
+# Run logs
+logs/
+
+# Kept local, out of the repo
+docs/
