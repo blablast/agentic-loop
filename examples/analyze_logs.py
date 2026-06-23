@@ -29,6 +29,7 @@ _COLUMNS = [
     ("med_iters", "med_it", 7),
     ("med_total_tokens", "med_tok", 9),
     ("med_thinking_tokens", "med_think", 10),
+    ("med_secs", "med_s", 7),
     ("cost_per_success_usd", "$/succ", 10),
 ]
 
@@ -74,6 +75,7 @@ def aggregate(summaries: list[dict[str, Any]]) -> list[dict[str, Any]]:
                 "med_thinking_tokens": statistics.median(
                     r.get("thoughts_tokens_total", 0) for r in runs
                 ),
+                "med_secs": statistics.median(r.get("latency_ms_total", 0) / 1000 for r in runs),
                 "cost_per_success_usd": (
                     total_cost / n_ok if (total_cost is not None and n_ok) else None
                 ),
@@ -89,6 +91,8 @@ def _fmt(key: str, value: Any) -> str:
         return f"{value * 100:.0f}"
     if key == "cost_per_success_usd":
         return f"${value:.4f}"
+    if key == "med_secs":
+        return f"{value:.1f}"
     if key in {"med_iters", "med_total_tokens", "med_thinking_tokens"}:
         return f"{value:g}"
     return str(value)

@@ -10,6 +10,7 @@ backends in `streaming.py`): the maker never imports a console or a color.
 
 from __future__ import annotations
 
+import time
 from collections.abc import Iterator
 from typing import Any
 
@@ -63,6 +64,7 @@ class GeminiMaker(BaseStreamingMaker):
         return the full answer text."""
         answer: list[str] = []
         usage: Any = None
+        start = time.perf_counter()  # cloud model is always warm; no local load to exclude
         chunks = self.client.models.generate_content_stream(
             model=self.model,
             contents=prompt,
@@ -77,11 +79,12 @@ class GeminiMaker(BaseStreamingMaker):
             meta = getattr(chunk, "usage_metadata", None)  # last chunk carries cumulative counts
             if meta is not None:
                 usage = meta
+        latency_ms = (time.perf_counter() - start) * 1000.0
         if self.hooks.on_usage and usage is not None:
-            self.hooks.on_usage(self._usage(usage))
+            self.hooks.on_usage(self._usage(usage, latency_ms))
         return "".join(answer)
 
-    def _usage(self, meta: Any) -> Usage:
+    def _usage(self, meta: Any, latency_ms: float) -> Usage:
         # thoughts_token_count is None when thinking is off -> coerce to 0
         return Usage(
             prompt_tokens=getattr(meta, "prompt_token_count", 0) or 0,
@@ -89,6 +92,7 @@ class GeminiMaker(BaseStreamingMaker):
             thoughts_tokens=getattr(meta, "thoughts_token_count", 0) or 0,
             total_tokens=getattr(meta, "total_token_count", 0) or 0,
             model=self.model,
+            latency_ms=latency_ms,
         )
 
     @staticmethod

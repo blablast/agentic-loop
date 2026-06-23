@@ -70,6 +70,7 @@ class OllamaMaker(BaseStreamingMaker):
 
         answer: list[str] = []
         prompt_tokens = eval_tokens = 0
+        latency_ns = 0
         with urllib.request.urlopen(request, timeout=self.timeout) as response:  # noqa: S310
             for line in response:  # Ollama streams newline-delimited JSON objects
                 raw = line.strip()
@@ -88,6 +89,10 @@ class OllamaMaker(BaseStreamingMaker):
                 if chunk.get("done"):
                     prompt_tokens = chunk.get("prompt_eval_count") or 0
                     eval_tokens = chunk.get("eval_count") or 0
+                    # prompt-eval + generation, EXCLUDING load_duration (model already loaded)
+                    latency_ns = (chunk.get("prompt_eval_duration") or 0) + (
+                        chunk.get("eval_duration") or 0
+                    )
 
         if self.hooks.on_usage:
             self.hooks.on_usage(
@@ -97,6 +102,7 @@ class OllamaMaker(BaseStreamingMaker):
                     thoughts_tokens=0,  # Ollama does not split a separate thinking count
                     total_tokens=prompt_tokens + eval_tokens,
                     model=self.model,
+                    latency_ms=latency_ns / 1e6,  # ns -> ms
                 )
             )
         return "".join(answer)

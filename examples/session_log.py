@@ -90,7 +90,13 @@ class SessionLogger:
         self._usage: Usage | None = None
         self._prompt: str | None = None
         self._stream: list[tuple[str, str]] = []
-        self._totals = {"prompt": 0, "candidate": 0, "thoughts": 0, "total": 0}
+        self._totals: dict[str, float] = {
+            "prompt": 0,
+            "candidate": 0,
+            "thoughts": 0,
+            "total": 0,
+            "latency_ms": 0.0,
+        }
         self._solved = False
         self._iters_run = 0
 
@@ -150,6 +156,7 @@ class SessionLogger:
                 "candidate_tokens": usage.candidate_tokens if usage else 0,
                 "thoughts_tokens": usage.thoughts_tokens if usage else 0,
                 "total_tokens": usage.total_tokens if usage else 0,
+                "latency_ms": round(usage.latency_ms, 1) if usage else 0,
                 "candidates": self._candidates,
                 "solved_here": any(c["ok"] for c in self._candidates),
             },
@@ -159,6 +166,7 @@ class SessionLogger:
             self._totals["candidate"] += usage.candidate_tokens
             self._totals["thoughts"] += usage.thoughts_tokens
             self._totals["total"] += usage.total_tokens
+            self._totals["latency_ms"] += usage.latency_ms
         if self._transcripts is not None:
             self._write(
                 self._transcripts,
@@ -194,6 +202,7 @@ class SessionLogger:
                 "candidate_tokens_total": self._totals["candidate"],
                 "thoughts_tokens_total": self._totals["thoughts"],
                 "total_tokens_total": self._totals["total"],
+                "latency_ms_total": round(self._totals["latency_ms"], 1),  # warm gen, load-excl.
                 "cost_usd": cost_usd,  # derived; null if the model's price is unknown
                 "cost_prices": cost_prices,  # the price snapshot that produced cost_usd
                 "sdk_version": self._config.sdk_version,

@@ -43,6 +43,8 @@ CELLS: list[Cell] = [
     Cell("ollama", "gemma4:31b", ("minimal", "high")),
     # tiny floor (where the loop and best-of-N earn their keep):
     Cell("ollama", "qwen3:4b", ("minimal", "high")),
+    # fast small model for the latency axis (LFM, thinking-capable):
+    Cell("ollama", "lfm2.5:latest", ("minimal", "high")),
     # reasoning specialists (R1 always reasons -> on only):
     Cell("ollama", "deepseek-r1:14b", ("high",)),
     Cell("ollama", "deepseek-r1:32b", ("high",)),  # still pulling — will be ready

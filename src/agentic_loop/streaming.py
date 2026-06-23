@@ -20,13 +20,16 @@ Kind = Literal["thinking", "answer"]
 
 @dataclass(frozen=True)
 class Usage:
-    """Token counts for one generation."""
+    """Per-generation metrics: token counts plus `latency_ms`, the request-to-result time
+    with the model already in memory (Ollama reports it load-excluded; for Gemini it is the
+    wall-clock around the stream). Raw numbers only; cost/throughput are computed offline."""
 
     prompt_tokens: int
     candidate_tokens: int
     thoughts_tokens: int
     total_tokens: int
     model: str
+    latency_ms: float = 0.0
 
 
 @dataclass(frozen=True)
