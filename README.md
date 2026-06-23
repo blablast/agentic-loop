@@ -71,7 +71,7 @@ parts) to the log, so an analyst can read the instance's difficulty next to the 
 ## Install
 
 ```bash
-git clone https://github.com/<you>/agentic-loop.git
+git clone https://github.com/blablast/agentic-loop.git
 cd agentic-loop
 uv sync          # creates the venv, installs the package (editable) + dev deps
 ```
