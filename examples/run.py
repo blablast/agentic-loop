@@ -19,6 +19,7 @@ the verifier is not a tool the model calls, just an external test in the loop's 
 import argparse
 import os
 import random
+import re
 import sys
 import uuid
 from datetime import datetime
@@ -96,10 +97,18 @@ def parse_args():
     return p.parse_args()
 
 
+def safe_filename(name: str) -> str:
+    """Make a string safe as a filename on every OS. Windows forbids <>:"/\\|?* — and a
+    colon in particular does NOT error: Python silently writes to an NTFS alternate data
+    stream, leaving a 0-byte visible file. Ollama tags carry colons (e.g. gemma4:31b), so
+    sanitize before building the log name."""
+    return re.sub(r'[<>:"/\\|?*]', "-", name)
+
+
 def _log_filename(args: argparse.Namespace, stamp: str) -> str:
     """Auto-name a log from the problem, the call's parameters, and the launch timestamp."""
     seed = args.seed  # always concrete (resolved in main), so the log name is reproducible
-    model = args.model.replace("/", "-")
+    model = safe_filename(args.model)
     return (
         f"{args.problem}_{model}_{args.thinking}"
         f"_n{args.n}_seed{seed}_it{args.max_iters}_{stamp}.jsonl"

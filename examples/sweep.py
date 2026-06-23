@@ -20,6 +20,8 @@ import sys
 from dataclasses import dataclass
 from pathlib import Path
 
+from run import safe_filename  # same sanitizer the runner uses, so resume matches real names
+
 from problems import REGISTRY
 
 
@@ -84,7 +86,7 @@ def already_logged(
     The cell's parameters (incl. n and max_iters) are in the filename, so changing them
     forces a fresh run; for changed gate semantics (e.g. tolerance), use a fresh --log-dir.
     """
-    prefix = f"{problem}_{model.replace('/', '-')}_{thinking}_n{n}_seed{seed}_it{max_iters}_"
+    prefix = f"{problem}_{safe_filename(model)}_{thinking}_n{n}_seed{seed}_it{max_iters}_"
     for path in glob.glob(os.path.join(log_dir, prefix + "*.jsonl")):
         if path.endswith(".transcripts.jsonl"):
             continue
