@@ -1,5 +1,6 @@
 # Secrets
 .env
+.claude
 CLAUDE.md
 
 # Python
@@ -19,6 +20,3 @@ venv/
 
 # Run logs
 logs/
-
-# Kept local, out of the repo
-docs/
