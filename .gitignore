@@ -7,7 +7,6 @@ CLAUDE.md
 __pycache__/
 *.py[cod]
 .venv/
-venv/
 
 # Tooling / IDE
 .idea/
@@ -20,3 +19,5 @@ venv/
 
 # Run logs
 logs/
+/docs/PL.md
+/docs/EN.md
